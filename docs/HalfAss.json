@@ -1,0 +1,788 @@
+{
+    "name": "HalfAss",
+    "filename": "HalfAss.dsp",
+    "version": "2.72.10",
+    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "library_list": [
+        "/usr/share/faust/stdfaust.lib",
+        "/usr/share/faust/basics.lib",
+        "/usr/share/faust/signals.lib",
+        "/usr/share/faust/maths.lib",
+        "/usr/share/faust/platform.lib",
+        "/usr/share/faust/filters.lib",
+        "/usr/share/faust/webaudio.lib",
+        "/usr/share/faust/analyzers.lib",
+        "/usr/share/faust/oscillators.lib",
+        "/usr/share/faust/delays.lib",
+        "/usr/share/faust/routes.lib"
+    ],
+    "include_pathnames": [
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 681604,
+    "code": "yJuiAWSSHg==",
+    "inputs": 2,
+    "outputs": 2,
+    "meta": [
+        {
+            "analyzers.lib/name": "Faust Analyzer Library"
+        },
+        {
+            "analyzers.lib/version": "1.2.0"
+        },
+        {
+            "author": "darkoverlordofdata"
+        },
+        {
+            "contributor": "Grame"
+        },
+        {
+            "basics.lib/bypass1:author": "Julius Smith"
+        },
+        {
+            "basics.lib/bypass1to2:author": "Julius Smith"
+        },
+        {
+            "basics.lib/bypass2:author": "Julius Smith"
+        },
+        {
+            "basics.lib/name": "Faust Basic Element Library"
+        },
+        {
+            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+        },
+        {
+            "basics.lib/version": "1.15.0"
+        },
+        {
+            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+        },
+        {
+            "copyright": "(c)DarkOverlordOfData 2021"
+        },
+        {
+            "delays.lib/name": "Faust Delay Library"
+        },
+        {
+            "delays.lib/version": "1.1.0"
+        },
+        {
+            "description": "One Full Half of Bad Ass!"
+        },
+        {
+            "designer": "Robert A. Moog"
+        },
+        {
+            "filename": "HalfAss.dsp"
+        },
+        {
+            "filters.lib/dcblocker:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/dcblocker:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/dcblocker:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/fir:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/fir:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/fir:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/iir:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/iir:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/iir:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/lowpass0_highpass1": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/name": "Faust Filters Library"
+        },
+        {
+            "filters.lib/nlf2:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/nlf2:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/nlf2:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/pole:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/pole:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/pole:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/tf1:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/tf1:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/tf1:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/tf2:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/tf2:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/tf2:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/version": "1.3.0"
+        },
+        {
+            "filters.lib/zero:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/zero:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/zero:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "license": "MIT"
+        },
+        {
+            "maths.lib/author": "GRAME"
+        },
+        {
+            "maths.lib/copyright": "GRAME"
+        },
+        {
+            "maths.lib/license": "LGPL with exception"
+        },
+        {
+            "maths.lib/name": "Faust Math Library"
+        },
+        {
+            "maths.lib/version": "2.8.0"
+        },
+        {
+            "name": "HalfAss"
+        },
+        {
+            "oscillators.lib/lf_sawpos:author": "Bart Brouns, revised by Stéphane Letz"
+        },
+        {
+            "oscillators.lib/lf_sawpos:licence": "STK-4.3"
+        },
+        {
+            "oscillators.lib/name": "Faust Oscillator Library"
+        },
+        {
+            "oscillators.lib/saw1:author": "Bart Brouns"
+        },
+        {
+            "oscillators.lib/saw1:licence": "STK-4.3"
+        },
+        {
+            "oscillators.lib/version": "1.5.0"
+        },
+        {
+            "platform.lib/name": "Generic Platform Library"
+        },
+        {
+            "platform.lib/version": "1.3.0"
+        },
+        {
+            "reference": "https://ccrma.stanford.edu/~jos/pasp/Freeverb.html"
+        },
+        {
+            "routes.lib/name": "Faust Signal Routing Library"
+        },
+        {
+            "routes.lib/version": "1.2.0"
+        },
+        {
+            "signals.lib/name": "Faust Signal Routing Library"
+        },
+        {
+            "signals.lib/version": "1.5.0"
+        },
+        {
+            "version": "0.1"
+        },
+        {
+            "webaudio.lib/author": "GRAME"
+        },
+        {
+            "webaudio.lib/copyright": "GRAME"
+        },
+        {
+            "webaudio.lib/license": "LGPL with exception"
+        },
+        {
+            "webaudio.lib/name": "Faust WebAudio Filters Library"
+        },
+        {
+            "webaudio.lib/version": "1.1.0"
+        }
+    ],
+    "ui": [
+        {
+            "type": "vgroup",
+            "label": "HalfAss",
+            "items": [
+                {
+                    "type": "hgroup",
+                    "label": "0x00",
+                    "items": [
+                        {
+                            "type": "vgroup",
+                            "label": "Effects",
+                            "meta": [
+                                {
+                                    "1": ""
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "type": "hgroup",
+                                    "label": "Flanger",
+                                    "meta": [
+                                        {
+                                            "5": ""
+                                        }
+                                    ],
+                                    "items": [
+                                        {
+                                            "type": "hgroup",
+                                            "label": "Knobs",
+                                            "meta": [
+                                                {
+                                                    "0": ""
+                                                }
+                                            ],
+                                            "items": [
+                                                {
+                                                    "type": "hslider",
+                                                    "label": "Delay",
+                                                    "shortname": "Flanger_Knobs_Delay",
+                                                    "address": "/HalfAss/0x00/Effects/Flanger/Knobs/Delay",
+                                                    "index": 540988,
+                                                    "meta": [
+                                                        {
+                                                            "1": ""
+                                                        },
+                                                        {
+                                                            "midi": "ctrl 50"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        }
+                                                    ],
+                                                    "init": 0.22,
+                                                    "min": 0,
+                                                    "max": 1,
+                                                    "step": 1
+                                                },
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "Rate",
+                                                    "shortname": "Flanger_Knobs_Rate",
+                                                    "address": "/HalfAss/0x00/Effects/Flanger/Knobs/Rate",
+                                                    "index": 524360,
+                                                    "meta": [
+                                                        {
+                                                            "1": ""
+                                                        },
+                                                        {
+                                                            "midi": "ctrl 51"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        },
+                                                        {
+                                                            "unit": "Hz"
+                                                        }
+                                                    ],
+                                                    "init": 0.5,
+                                                    "min": 0,
+                                                    "max": 10,
+                                                    "step": 0.01
+                                                },
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "Depth",
+                                                    "shortname": "Flanger_Knobs_Depth",
+                                                    "address": "/HalfAss/0x00/Effects/Flanger/Knobs/Depth",
+                                                    "index": 541004,
+                                                    "meta": [
+                                                        {
+                                                            "3": ""
+                                                        },
+                                                        {
+                                                            "midi": "ctrl 52"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        }
+                                                    ],
+                                                    "init": 0.75,
+                                                    "min": 0,
+                                                    "max": 1,
+                                                    "step": 0.001
+                                                },
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "Feedback",
+                                                    "shortname": "Feedback",
+                                                    "address": "/HalfAss/0x00/Effects/Flanger/Knobs/Feedback",
+                                                    "index": 524588,
+                                                    "meta": [
+                                                        {
+                                                            "5": ""
+                                                        },
+                                                        {
+                                                            "midi": "ctrl 53"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        }
+                                                    ],
+                                                    "init": 0,
+                                                    "min": -0.995,
+                                                    "max": 0.99,
+                                                    "step": 0.001
+                                                },
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "Waveshape",
+                                                    "shortname": "Waveshape",
+                                                    "address": "/HalfAss/0x00/Effects/Flanger/Knobs/Waveshape",
+                                                    "index": 524352,
+                                                    "meta": [
+                                                        {
+                                                            "7": ""
+                                                        },
+                                                        {
+                                                            "midi": "ctrl 54"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        }
+                                                    ],
+                                                    "init": 0,
+                                                    "min": 0,
+                                                    "max": 1,
+                                                    "step": 0.001
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "hgroup",
+                                            "label": "Switches",
+                                            "meta": [
+                                                {
+                                                    "1": ""
+                                                }
+                                            ],
+                                            "items": [
+                                                {
+                                                    "type": "checkbox",
+                                                    "label": "Enable",
+                                                    "shortname": "Flanger_Switches_Enable",
+                                                    "address": "/HalfAss/0x00/Effects/Flanger/Switches/Enable",
+                                                    "index": 524348
+                                                },
+                                                {
+                                                    "type": "checkbox",
+                                                    "label": "Invert",
+                                                    "shortname": "Invert",
+                                                    "address": "/HalfAss/0x00/Effects/Flanger/Switches/Invert",
+                                                    "index": 541000
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "hgroup",
+                                    "label": "Chorus",
+                                    "meta": [
+                                        {
+                                            "6": ""
+                                        }
+                                    ],
+                                    "items": [
+                                        {
+                                            "type": "hgroup",
+                                            "label": "Knobs",
+                                            "meta": [
+                                                {
+                                                    "0": ""
+                                                }
+                                            ],
+                                            "items": [
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "Delay",
+                                                    "shortname": "Chorus_Knobs_Delay",
+                                                    "address": "/HalfAss/0x00/Effects/Chorus/Knobs/Delay",
+                                                    "index": 606552,
+                                                    "meta": [
+                                                        {
+                                                            "0": ""
+                                                        },
+                                                        {
+                                                            "midi": "ctrl 55"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        }
+                                                    ],
+                                                    "init": 0.5,
+                                                    "min": 0,
+                                                    "max": 1,
+                                                    "step": 1
+                                                },
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "Rate",
+                                                    "shortname": "Chorus_Knobs_Rate",
+                                                    "address": "/HalfAss/0x00/Effects/Chorus/Knobs/Rate",
+                                                    "index": 606580,
+                                                    "meta": [
+                                                        {
+                                                            "1": ""
+                                                        },
+                                                        {
+                                                            "midi": "ctrl 56"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        },
+                                                        {
+                                                            "unit": "Hz"
+                                                        }
+                                                    ],
+                                                    "init": 0.5,
+                                                    "min": 0.01,
+                                                    "max": 7,
+                                                    "step": 0.0001
+                                                },
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "Depth",
+                                                    "shortname": "Chorus_Knobs_Depth",
+                                                    "address": "/HalfAss/0x00/Effects/Chorus/Knobs/Depth",
+                                                    "index": 524336,
+                                                    "meta": [
+                                                        {
+                                                            "4": ""
+                                                        },
+                                                        {
+                                                            "midi": "ctrl 57"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        }
+                                                    ],
+                                                    "init": 0.5,
+                                                    "min": 0,
+                                                    "max": 1,
+                                                    "step": 0.001
+                                                },
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "Deviation",
+                                                    "shortname": "Deviation",
+                                                    "address": "/HalfAss/0x00/Effects/Chorus/Knobs/Deviation",
+                                                    "index": 606564,
+                                                    "meta": [
+                                                        {
+                                                            "6": ""
+                                                        },
+                                                        {
+                                                            "midi": "ctrl 58"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        }
+                                                    ],
+                                                    "init": 0.5,
+                                                    "min": 0,
+                                                    "max": 1,
+                                                    "step": 0.001
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "hgroup",
+                                            "label": "Switches",
+                                            "meta": [
+                                                {
+                                                    "1": ""
+                                                }
+                                            ],
+                                            "items": [
+                                                {
+                                                    "type": "checkbox",
+                                                    "label": "Enable",
+                                                    "shortname": "Chorus_Switches_Enable",
+                                                    "address": "/HalfAss/0x00/Effects/Chorus/Switches/Enable",
+                                                    "index": 524320
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "hgroup",
+                                    "label": "Reverb",
+                                    "meta": [
+                                        {
+                                            "7": ""
+                                        }
+                                    ],
+                                    "items": [
+                                        {
+                                            "type": "hgroup",
+                                            "label": "Knobs",
+                                            "meta": [
+                                                {
+                                                    "0": ""
+                                                }
+                                            ],
+                                            "items": [
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "Damp",
+                                                    "shortname": "Damp",
+                                                    "address": "/HalfAss/0x00/Effects/Reverb/Knobs/Damp",
+                                                    "index": 524308,
+                                                    "meta": [
+                                                        {
+                                                            "midi": "ctrl 3"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        }
+                                                    ],
+                                                    "init": 0.5,
+                                                    "min": 0,
+                                                    "max": 1,
+                                                    "step": 0.025
+                                                },
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "RoomSize",
+                                                    "shortname": "RoomSize",
+                                                    "address": "/HalfAss/0x00/Effects/Reverb/Knobs/RoomSize",
+                                                    "index": 524304,
+                                                    "meta": [
+                                                        {
+                                                            "midi": "ctrl 4"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        }
+                                                    ],
+                                                    "init": 0.5,
+                                                    "min": 0,
+                                                    "max": 1,
+                                                    "step": 0.025
+                                                },
+                                                {
+                                                    "type": "vslider",
+                                                    "label": "Wet",
+                                                    "shortname": "Wet",
+                                                    "address": "/HalfAss/0x00/Effects/Reverb/Knobs/Wet",
+                                                    "index": 524300,
+                                                    "meta": [
+                                                        {
+                                                            "midi": "ctrl 79"
+                                                        },
+                                                        {
+                                                            "style": "knob"
+                                                        }
+                                                    ],
+                                                    "init": 0.3333,
+                                                    "min": 0,
+                                                    "max": 1,
+                                                    "step": 0.025
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "hgroup",
+                                            "label": "Switches",
+                                            "meta": [
+                                                {
+                                                    "1": ""
+                                                }
+                                            ],
+                                            "items": [
+                                                {
+                                                    "type": "checkbox",
+                                                    "label": "Enable",
+                                                    "shortname": "Reverb_Switches_Enable",
+                                                    "address": "/HalfAss/0x00/Effects/Reverb/Switches/Enable",
+                                                    "index": 524296
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "hgroup",
+                    "label": "PowerAmp FAUST / WebAudio",
+                    "items": [
+                        {
+                            "type": "hslider",
+                            "label": "Curve k",
+                            "shortname": "Curve_k",
+                            "address": "/HalfAss/PowerAmp_FAUST_/_WebAudio/Curve_k",
+                            "index": 524532,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 1,
+                            "min": 0.1,
+                            "max": 4,
+                            "step": 0.001
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Drive gain",
+                            "shortname": "Drive_gain",
+                            "address": "/HalfAss/PowerAmp_FAUST_/_WebAudio/Drive_gain",
+                            "index": 524520,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 4,
+                            "min": -10,
+                            "max": 10,
+                            "step": 0.001
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Level",
+                            "shortname": "Level",
+                            "address": "/HalfAss/PowerAmp_FAUST_/_WebAudio/Level",
+                            "index": 524576,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": -3,
+                            "min": -24,
+                            "max": 24,
+                            "step": 1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Master Volume",
+                            "shortname": "Master_Volume",
+                            "address": "/HalfAss/PowerAmp_FAUST_/_WebAudio/Master_Volume",
+                            "index": 524492,
+                            "meta": [
+                                {
+                                    "name": "MV"
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 1,
+                            "min": 0,
+                            "max": 4,
+                            "step": 0.1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Negative gain",
+                            "shortname": "Negative_gain",
+                            "address": "/HalfAss/PowerAmp_FAUST_/_WebAudio/Negative_gain",
+                            "index": 524440,
+                            "meta": [
+                                {
+                                    "name": "Level"
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": -0.4,
+                            "min": -0.8,
+                            "max": 1,
+                            "step": 0.01
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Presence",
+                            "shortname": "Presence",
+                            "address": "/HalfAss/PowerAmp_FAUST_/_WebAudio/Presence",
+                            "index": 524432,
+                            "meta": [
+                                {
+                                    "name": "p1Gain"
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 0,
+                            "min": -15,
+                            "max": 15,
+                            "step": 0.1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Saturation dry wet",
+                            "shortname": "Saturation_dry_wet",
+                            "address": "/HalfAss/PowerAmp_FAUST_/_WebAudio/Saturation_dry_wet",
+                            "index": 524416,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 1,
+                            "min": 0,
+                            "max": 1,
+                            "step": 0.001
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "bypass",
+                            "shortname": "bypass",
+                            "address": "/HalfAss/PowerAmp_FAUST_/_WebAudio/bypass",
+                            "index": 524404
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
