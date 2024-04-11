@@ -2,7 +2,7 @@ declare name "halfass";
 declare version "0.1";
 declare author "darkoverlordofdata";
 declare description "One Full Half of Bad Ass!";
-declare license "MIT";
+declare license "BSD-2-Clause";
 declare copyright "(c)DarkOverlordOfData 2021";
 /*
 
