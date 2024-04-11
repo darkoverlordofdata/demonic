@@ -32,7 +32,7 @@ https://icon-library.com/icon/guitar-amp-icon-4.html
 
 
 ### license
-MIT License
+BSD-2-Clause License
 
 Copyright (c) 2021 Bruce Davidson &lt;darkoverlordofdata@gmail.com&gt;
 
