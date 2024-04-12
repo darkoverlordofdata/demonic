@@ -1,38 +1,17 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Vite + TS</title>
-        <script type="module" src="faust-web-component.js"></script>
-        <!-- <script type="module" src="/src/main.ts"></script> -->
-        <style>
-            #content {
-                width: 50%;
-                margin: auto;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="content">
-            <faust-widget>
-<!--
-declare name "halfass";
-declare version "0.1";
+declare name "Demonic";
+declare version "0.9";
 declare author "darkoverlordofdata";
-declare description "One Full Half of Bad Ass!";
-declare license "MIT";
+declare description "Practice Amp";
+declare license "BSD-2-Clause";
 declare copyright "(c)DarkOverlordOfData 2021";
 /*
 
-  ___ ___          .__     _____    _____                   
- /   |   \ _____   |  |  _/ ____\  /  _  \    ______  ______
-/    ~    \\__  \  |  |  \   __\  /  /_\  \  /  ___/ /  ___/
-\    Y    / / __ \_|  |__ |  |   /    |    \ \___ \  \___ \ 
- \___|_  / (____  /|____/ |__|   \____|__  //____  >/____  >
-       \/       \/                       \/      \/      \/ 
-
+________                               .__        
+\______ \   ____   _____   ____   ____ |__| ____  
+ |    |  \_/ __ \ /     \ /  _ \ /    \|  |/ ___\ 
+ |    `   \  ___/|  Y Y  (  <_> )   |  \  \  \___ 
+/_______  /\___  >__|_|  /\____/|___|  /__|\___  >
+        \/     \/      \/            \/        \/ 
 
 */
 import("stdfaust.lib");
@@ -71,7 +50,7 @@ amplifier = environment {
 	// to affect the resulting sound pretty minimally.
 	//
 	// Also note here that we use an approximation of the `tanh` function for computational
-	// improvement. See `http://www.musicdsp.org/showone.php?id=238`.
+	// improvement. See `https://www.musicdsp.org/showone.php?id=238`.
 	tanh(x) = x * (27 + x * x) / (27 + 9 * x * x);
 	transfer(x) = tanh(pcurve * x) / tanh(pcurve);
 
@@ -384,9 +363,3 @@ rsg(x) = rg(hgroup("[1] Switches",x));
 
 
 
-
--->
-            </faust-widget>
-        </div>
-    </body>
-</html>

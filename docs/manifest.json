@@ -1,16 +1,16 @@
 {
-    "name":"HalfAss",
-    "short_name":"HalfAss",
+    "name":"Demonic",
+    "short_name":"Demonic",
     "start_url":"index.html",
     "display":"standalone",
     "background_color":"#5900b3",
     "theme_color":"black",
     "scope": ".",
-    "description":"One Full Half of Bad Ass",
+    "description":"Demonic Guitar Amp",
     "orientation": "portrait-primary",
     "icons":[
       {
-      "src":"images/HalfAss.png",                    
+      "src":"images/Demonic.png",                    
       "sizes":"256x256",
       "type":"image/png"
       }
