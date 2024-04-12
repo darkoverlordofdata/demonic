@@ -1,19 +1,20 @@
-# halfass
+# Demonic
 
-A Half Ass practice guitar amp that runs in your browser
+A practice guitar amp that runs in your browser
 
 Written for my Chromebook
 
-built, tested, and compiled using [Faust IDE](https://faustide.grame.fr/index.html)
+built and tested using [Faust IDE](https://faustide.grame.fr/index.html)
 
-to install/run visit https://darkoverlordofdata.com/halfass
+to install/run visit https://darkoverlordofdata.com/demonic
 
 This is not a modeling amp. You cannot select what tubes and cabinet you like. All you get is a generic practice amp.
 
 At present you can select Amplifier, Flanger, Chorus, and Reverb. You can play with knobs and dials.
 
-Future plans? I'm retired, so we'll see. Want to contribute https://github.com/darkoverlordofdata/halfass
-
+todo
+* clean up the gui
+* add a visualization panel
 
 ### compatability
 
@@ -24,7 +25,7 @@ Future plans? I'm retired, so we'll see. Want to contribute https://github.com/d
 
 Tested with Behringer Guitar Link USB Interface UC6102
 
-USBC to USB converter required for phone
+USBC to USB converter required for phone. It also loads slow.
 
 ### icon credit
 

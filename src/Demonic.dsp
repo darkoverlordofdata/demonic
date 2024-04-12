@@ -1,5 +1,5 @@
 declare name "Demonic";
-declare version "0.9";
+declare version "0.9-beta";
 declare author "darkoverlordofdata";
 declare description "Practice Amp";
 declare license "BSD-2-Clause";
