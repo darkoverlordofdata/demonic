@@ -13,18 +13,18 @@ At present you can select Amplifier, Flanger, Chorus, and Reverb. You can play w
 My main use case is that I can practice along side youtube as well as various tablature playback sites such as ultimate-guitar:
 
 todo
-* remove excessive borders and text from gui
-* add visualization panel
+* hide/display visualization panel
 * add metronome
 
 ### compatability
 
-* Inspiron - XUbuntu 22.04 / Chrome Browser
+* Inspiron - XUbuntu 22.04  - Chrome Browser / Firefox / Edge
 * Inspiron - ChromeOS Flex 
 * Chromebook - Lenovo Duet 2
 * Android Phone (LG K51)
 
 Tested with Behringer Guitar Link USB Interface UC6102
+On linux, disable jackd if running, it will work better
 
 USBC to USB converter required for phone. It also loads slow.
 
