@@ -1,4 +1,4 @@
-# Demonic
+# Dark Overlord of Data's Demonic Practice Amp
 
 A practice guitar amp that runs in your browser
 
