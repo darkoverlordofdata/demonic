@@ -1,49 +1,5 @@
-<!doctype html>
-<html lang="en">
-    <head>
-
-        <link rel="icon" href="./favicon.ico"/>    
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
-        <!-- <title>Demonic</title> -->
-    
-        <!-- Meta Tags for Progressive Web App -->
-        <meta name="apple-mobile-web-app-status-bar" content="#aa7700">
-        <meta name="theme-color" content="black">
-        
-        <!-- Link to the Manifest File -->
-        <link rel="manifest" href="manifest.json">
-
-
-        <script type="module" src="faust-web-component.js"></script>
-        <!-- <script type="module" src="/src/main.ts"></script> -->
-        <style>
-            body {
-                color: #b0b0b0;
-                background-color: #1f1f1f;
-                display: flex;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                position: absolute;
-            }
-            #content {
-                /* width: 50%; */
-                margin: auto;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="content">
-            <faust-widget>
-<!--
-
-    declare name "Demonic";
-declare version "0.9.3-beta";
+declare name "Demonic";
+declare version "0.9-beta";
 declare author "darkoverlordofdata";
 declare description "Practice Amp";
 declare license "BSD-2-Clause";
@@ -59,21 +15,9 @@ ________                               .__
 
 */
 import("stdfaust.lib");
-import("music.lib");
 
 
-// process = preamp 
-// 	:> amplifier
-// 	: temper
-// 	<: fuzz
-// 	: phaser
-// 	:> flanger
-// 	: chorus
-//   	: reverb;
-
-process = preamp
-	: fuzz
-	: phaser
+process = preamp 
 	:> amplifier
 	: temper
 	: flanger
@@ -188,7 +132,7 @@ amplifier = environment {
 	// And the overall process declaration.
 	poweramp =  main;
 
-	finalPWAMono = hgroup("[1] PowerAmp",ba.bypass_fade(ma.SR/10, checkbox("bypass"), poweramp)); 
+	finalPWAMono = hgroup("PowerAmp FAUST / WebAudio",ba.bypass_fade(ma.SR/10, checkbox("bypass"), poweramp)); 
 
 	amp_process = finalPWAMono;
 
@@ -537,8 +481,7 @@ preamp = environment {
 	/* The main program. */
 
 	preamp_process = 
-			vgroup("[0] preamp", preamp, preamp) ;
-			// hgroup("[0] clean", vgroup("[1] preamp", preamp, preamp) );
+			hgroup("[0] clean", vgroup("[1] preamp", preamp, preamp) );
 
 
 
@@ -637,124 +580,32 @@ temper = environment {
     // And the overall process declaration.
     poweramp = filter : main;    
 
-	finalPWAMono = hgroup("[2] Temper",ba.bypass_fade(ma.SR/10, checkbox("bypass"), poweramp)); 
+	finalPWAMono = hgroup("Temper",ba.bypass_fade(ma.SR/10, checkbox("bypass"), poweramp)); 
 
 	temper_process = finalPWAMono;
 
 
 }.temper_process;
 
-
-/* A simple waveshaping effect. */
-//https://github.com/grame-cncm/faust/blob/master-dev/tools/faust2pd/examples/synth/fuzz.dsp
-
-// declare name "fuzz -- a simple distortion effect";
-// declare author "Bram de Jong (from musicdsp.org)";
-// declare version "1.0";
-
-// import("music.lib");
-// import("stdfaust.lib");
-
-fuzz = environment {
-	fuzz_group(x) = hgroup("[3] Fuzz ", x);
-
-	dist	= fuzz_group(hslider("[0] distortion", 12, 0, 100, 0.1));	// distortion parameter
-	gain	= fuzz_group(hslider("[1] gain", 3, -96, 96, 0.1));		// output gain (dB)
-	byp 	= fuzz_group(1-int(checkbox("[2] Enable")));
-
-	// the waveshaping function
-	f(a,x)	= x*(abs(x) + a)/(x*x + (a-1)*abs(x) + 1);
-
-	// gain correction factor to compensate for distortion
-	g(a)	= 1/sqrt(a+1);
-
-	fuzz_process	= ba.bypass2(byp, (out, out))
-
-	with { 
-		out(x) = db2linear(gain)*g(dist)*f(db2linear(dist),x); 
-	};
-}.fuzz_process;
-
-// declare name "phaser";
-// declare version "0.0";
-// declare author "JOS, revised by RM";
-// declare description "Phaser demo application.";
-
-// import("stdfaust.lib");
-
-// process = phaser;
-
-//-------------------------`(dm.)phaser2_demo`---------------------------
-// Phaser effect demo application.
-//
-// #### Usage
-//
-// ```
-// _,_ : phaser2_demo : _,_
-// ```
-//------------------------------------------------------------
-// declare phaser2_demo author "Julius O. Smith III";
-// declare phaser2_demo licence "MIT";
-
-phaser = environment {
-
-
-	phaser2_demo = ba.bypass2(pbp,phaser2_stereo_demo)
-	with{
-		phaser2_group(x) = hgroup("[4] Phaser ", x);
-
-		invert = 0; //meter_group(checkbox("[1] Invert Internal Phaser Sum"));
-		vibr = 0; //meter_group(checkbox("[2] Vibrato Mode")); // In this mode you can hear any "Doppler"
-
-		phaser2_stereo_demo = *(level),*(level) :
-			pf.phaser2_stereo(Notches,width,frqmin,fratio,frqmax,speed,mdepth,fb,invert);
-
-		Notches = 4; // Compile-time parameter: 2 is typical for analog phaser stomp-boxes
-
-		speed  = phaser2_group(hslider("[0] Speed [unit:Hz] [style:knob]", 0.5, 0, 5, 0.001));
-
-		depth = 1;
-		fb = 0.5;
-
-		width = 1000;
-		frqmin = 100;
-		frqmax = 800;
-		fratio = 1.5;
-
-		level = 0 : ba.db2linear;
-		pbp 	= phaser2_group(1-int(checkbox("[1] Enable")));
-
-		mdepth = select2(vibr,depth,2); // Improve "ease of use"
-	};
-}.phaser2_demo;
 /**
  * Layout
  * 
  */
-flg(x) = hgroup("[5] Flanger",x);
+flg(x) = hgroup("[0] Flanger",x);
 flkg(x) = flg(hgroup("[0] Knobs",x));
 flsg(x) = flg(hgroup("[1] Switches",x));
 
 
-chg(x) = hgroup("[6] Chorus",x);
+chg(x) = hgroup("[1] Chorus",x);
 ckg(x) = chg(hgroup("[0] Knobs",x));
 csg(x) = chg(hgroup("[1] Switches",x));
 
-rg(x) = hgroup("[7] Reverb",x);
+rg(x) = hgroup("[2] Reverb",x);
 rkg(x) = rg(hgroup("[0] Knobs",x));
 rsg(x) = rg(hgroup("[1] Switches",x));
 
-sag(x) = hgroup("[8] Spectrum Analyzer", x);
+sag(x) = hgroup("[4] Spectrum Analyzer", x);
 sagg(x) = sag(vgroup("[0] Graph", x));
 sagc(x) = sag(vgroup("[1] Control", x));
 
 
-
-
--->
-            </faust-widget>
-        </div>
-    <!-- Link to the Service Worker -->
-    <script src="app.js"></script>
-    </body>
-</html>

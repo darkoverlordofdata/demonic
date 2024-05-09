@@ -1,49 +1,5 @@
-<!doctype html>
-<html lang="en">
-    <head>
-
-        <link rel="icon" href="./favicon.ico"/>    
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
-        <!-- <title>Demonic</title> -->
-    
-        <!-- Meta Tags for Progressive Web App -->
-        <meta name="apple-mobile-web-app-status-bar" content="#aa7700">
-        <meta name="theme-color" content="black">
-        
-        <!-- Link to the Manifest File -->
-        <link rel="manifest" href="manifest.json">
-
-
-        <script type="module" src="faust-web-component.js"></script>
-        <!-- <script type="module" src="/src/main.ts"></script> -->
-        <style>
-            body {
-                color: #b0b0b0;
-                background-color: #1f1f1f;
-                display: flex;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                position: absolute;
-            }
-            #content {
-                /* width: 50%; */
-                margin: auto;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="content">
-            <faust-widget>
-<!--
-
-    declare name "Demonic";
-declare version "0.9.3-beta";
+declare name "Demonic";
+declare version "0.9-beta";
 declare author "darkoverlordofdata";
 declare description "Practice Amp";
 declare license "BSD-2-Clause";
@@ -59,23 +15,11 @@ ________                               .__
 
 */
 import("stdfaust.lib");
-import("music.lib");
 
 
-// process = preamp 
-// 	:> amplifier
-// 	: temper
-// 	<: fuzz
-// 	: phaser
-// 	:> flanger
-// 	: chorus
-//   	: reverb;
-
-process = preamp
-	: fuzz
-	: phaser
-	:> amplifier
-	: temper
+process = _,_ : +
+	: amplifier
+	: spectral_analyzer
 	: flanger
 	: chorus
   	: reverb;
@@ -188,7 +132,7 @@ amplifier = environment {
 	// And the overall process declaration.
 	poweramp =  main;
 
-	finalPWAMono = hgroup("[1] PowerAmp",ba.bypass_fade(ma.SR/10, checkbox("bypass"), poweramp)); 
+	finalPWAMono = hgroup("PowerAmp FAUST / WebAudio",ba.bypass_fade(ma.SR/10, checkbox("bypass"), poweramp)); 
 
 	amp_process = finalPWAMono;
 
@@ -439,7 +383,7 @@ spectral_analyzer = environment {
 	spectral_process = mth_octave_spectral_level(2);
 }.spectral_process;
 
-preamp = environment {
+tone = environment {
 	import("math.lib");
 	import("music.lib");
 
@@ -508,9 +452,9 @@ preamp = environment {
 		a2 =        (A+1) - (A-1)*cos(w0) - 2*sqrt(A)*alpha;
 	};
 
-	/* The preamp control. We simply run a low and a high shelf in series here. */
+	/* The tone control. We simply run a low and a high shelf in series here. */
 
-	preamp		= low_shelf(bass_freq,bass_gain)
+	tone		= low_shelf(bass_freq,bass_gain)
 			: high_shelf(treble_freq,treble_gain);
 
 	/* Envelop follower. This is basically a 1 pole LP with configurable attack/
@@ -536,225 +480,33 @@ preamp = environment {
 
 	/* The main program. */
 
-	preamp_process = 
-			vgroup("[0] preamp", preamp, preamp) ;
-			// hgroup("[0] clean", vgroup("[1] preamp", preamp, preamp) );
+	tone_process = 
+			hgroup("[0] clean", vgroup("[1] tone", tone, tone) );
 
 
 
-}.preamp_process;
+}.tone_process;
 
-// https://github.com/creativeintent/temper/blob/master/Dsp/temper.dsp
-temper = environment {
-    // Pre-filter parameters
-    pfilterfc = hslider("Cutoff [style:knob]", 20000, 100, 20000, 1.0);
-    pfilterq = hslider("Resonance [style:knob]", 1.0, 1.0, 8, 0.001) : si.smooth(0.995);
-
-    // Distortion parameters
-    pdrive = hslider("Drive [style:knob]", 4.0, -10.0, 10.0, 0.001) : si.smooth(0.995);
-    psat = hslider("Saturation [style:knob]", 1.0, 0.0, 1.0, 0.001) : si.smooth(0.995);
-    pcurve = hslider("Curve [style:knob]", 1.0, 0.1, 4.0, 0.001) : si.smooth(0.995);
-
-    // Output parameters
-    pfeedback = hslider("Feedback [style:knob]", -60, -60, -24, 1) : ba.db2linear : si.smooth(0.995);
-    plevel = hslider("Level [style:knob]", -3, -24, 24, 1) : ba.db2linear : si.smooth(0.995);
-
-    // A fairly standard wave shaping curve; we use this to shape the input signal
-    // before modulating the filter coefficients by this signal. Which shaping curve
-    // we use here is pretty unimportant; as long as we can introduce higher harmonics,
-    // the coefficient modulation will react. Which harmonics we introduce here seems
-    // to affect the resulting sound pretty minimally.
-    //
-    // Also note here that we use an approximation of the `tanh` function for computational
-    // improvement. See `http://www.musicdsp.org/showone.php?id=238`.
-    tanh(x) = x * (27 + x * x) / (27 + 9 * x * x);
-    transfer(x) = tanh(pcurve * x) / tanh(pcurve);
-
-    // The allpass filter is stable for `|m(x)| <= 1`, but should not linger
-    // near +/-1.0 for very long. We therefore clamp the driven signal with a tanh
-    // function to ensure smooth coefficient calculation. We also here introduce
-    // a modulated DC offset in the signal before the curve.
-    drive(x) = x : *(pdrive) : +(fol(x)) : max(-3) : min(3) with {
-        fol = an.amp_follower(0.04);
-    };
-
-    // Our modulated filter is an allpass with coefficients governed by the input
-    // signal applied through our wave shaper. Before the filter, we mix the dry
-    // input signal with the raw waveshaper output according to the `psat` parameter.
-    // Note the constant gain coefficient on the waveshaper; that number is to offset
-    // the global gain from the waveshaper to make sure the shaping process stays
-    // under unity gain. The maximum differential gain of the waveshaper can be found
-    // by evaluating the derivative of the transfer function at x0 where x0 is the
-    // steepest part of the slope. Here that number is ~4, so we multiply by ~1/4.
-    modfilter(x) = x <: _, tap(x) : *(1.0 - psat), *(psat) : + : fi.tf1(b0(x), b1(x), a1(x)) with {
-        b0(x) = m(x);
-        b1(x) = 1.0;
-        a1(x) = m(x);
-        m(x) = drive(x) : transfer : *(0.24);
-        tap(x) = m(x);
-    };
-
-    // A fork of the `tf2s` function from the standard filter library which uses a
-    // smoothing function after the `tan` computation to move that expensive call
-    // outside of the inner loop of the filter function.
-    tf2s(b2,b1,b0,a1,a0,w1) = fi.tf2(b0d,b1d,b2d,a1d,a2d)
-    with {
-        c   = 1/tan(w1*0.5/ma.SR) : si.smooth(0.995); // bilinear-transform scale-factor
-        csq = c*c;
-        d   = a0 + a1 * c + csq;
-        b0d = (b0 + b1 * c + b2 * csq)/d;
-        b1d = 2 * (b0 - b2 * csq)/d;
-        b2d = (b0 - b1 * c + b2 * csq)/d;
-        a1d = 2 * (a0 - csq)/d;
-        a2d = (a0 - a1*c + csq)/d;
-    };
-
-    // A fork of the `resonlp` function from the standard filter library which uses
-    // a local `tf2s` implementation.
-    resonlp(fc,Q,gain) = tf2s(b2,b1,b0,a1,a0,wc)
-    with {
-        wc = 2*ma.PI*fc;
-        a1 = 1/Q;
-        a0 = 1;
-        b2 = 0;
-        b1 = 0;
-        b0 = gain;
-    };
-
-    // We have a resonant lowpass filter at the beginning of our signal chain
-    // to control what part of the input signal becomes the modulating signal.
-    filter = resonlp(pfilterfc, pfilterq, 1.0);
-
-    // Our main processing block.
-    main = (+ : modfilter : fi.dcblocker) ~ *(pfeedback) : gain with {
-        // This explicit gain multiplier of 4.0 accounts for the loss of gain that
-        // occurs from oversampling by a factor of 2, and for the loss of gain that
-        // occurs from the prefilter and modulation step. Then we apply the output
-        // level parameter.
-        gain = *(4.0) : *(plevel);
-    };
-
-    // And the overall process declaration.
-    poweramp = filter : main;    
-
-	finalPWAMono = hgroup("[2] Temper",ba.bypass_fade(ma.SR/10, checkbox("bypass"), poweramp)); 
-
-	temper_process = finalPWAMono;
-
-
-}.temper_process;
-
-
-/* A simple waveshaping effect. */
-//https://github.com/grame-cncm/faust/blob/master-dev/tools/faust2pd/examples/synth/fuzz.dsp
-
-// declare name "fuzz -- a simple distortion effect";
-// declare author "Bram de Jong (from musicdsp.org)";
-// declare version "1.0";
-
-// import("music.lib");
-// import("stdfaust.lib");
-
-fuzz = environment {
-	fuzz_group(x) = hgroup("[3] Fuzz ", x);
-
-	dist	= fuzz_group(hslider("[0] distortion", 12, 0, 100, 0.1));	// distortion parameter
-	gain	= fuzz_group(hslider("[1] gain", 3, -96, 96, 0.1));		// output gain (dB)
-	byp 	= fuzz_group(1-int(checkbox("[2] Enable")));
-
-	// the waveshaping function
-	f(a,x)	= x*(abs(x) + a)/(x*x + (a-1)*abs(x) + 1);
-
-	// gain correction factor to compensate for distortion
-	g(a)	= 1/sqrt(a+1);
-
-	fuzz_process	= ba.bypass2(byp, (out, out))
-
-	with { 
-		out(x) = db2linear(gain)*g(dist)*f(db2linear(dist),x); 
-	};
-}.fuzz_process;
-
-// declare name "phaser";
-// declare version "0.0";
-// declare author "JOS, revised by RM";
-// declare description "Phaser demo application.";
-
-// import("stdfaust.lib");
-
-// process = phaser;
-
-//-------------------------`(dm.)phaser2_demo`---------------------------
-// Phaser effect demo application.
-//
-// #### Usage
-//
-// ```
-// _,_ : phaser2_demo : _,_
-// ```
-//------------------------------------------------------------
-// declare phaser2_demo author "Julius O. Smith III";
-// declare phaser2_demo licence "MIT";
-
-phaser = environment {
-
-
-	phaser2_demo = ba.bypass2(pbp,phaser2_stereo_demo)
-	with{
-		phaser2_group(x) = hgroup("[4] Phaser ", x);
-
-		invert = 0; //meter_group(checkbox("[1] Invert Internal Phaser Sum"));
-		vibr = 0; //meter_group(checkbox("[2] Vibrato Mode")); // In this mode you can hear any "Doppler"
-
-		phaser2_stereo_demo = *(level),*(level) :
-			pf.phaser2_stereo(Notches,width,frqmin,fratio,frqmax,speed,mdepth,fb,invert);
-
-		Notches = 4; // Compile-time parameter: 2 is typical for analog phaser stomp-boxes
-
-		speed  = phaser2_group(hslider("[0] Speed [unit:Hz] [style:knob]", 0.5, 0, 5, 0.001));
-
-		depth = 1;
-		fb = 0.5;
-
-		width = 1000;
-		frqmin = 100;
-		frqmax = 800;
-		fratio = 1.5;
-
-		level = 0 : ba.db2linear;
-		pbp 	= phaser2_group(1-int(checkbox("[1] Enable")));
-
-		mdepth = select2(vibr,depth,2); // Improve "ease of use"
-	};
-}.phaser2_demo;
 /**
  * Layout
  * 
  */
-flg(x) = hgroup("[5] Flanger",x);
+flg(x) = hgroup("[0] Flanger",x);
 flkg(x) = flg(hgroup("[0] Knobs",x));
 flsg(x) = flg(hgroup("[1] Switches",x));
 
 
-chg(x) = hgroup("[6] Chorus",x);
+chg(x) = hgroup("[1] Chorus",x);
 ckg(x) = chg(hgroup("[0] Knobs",x));
 csg(x) = chg(hgroup("[1] Switches",x));
 
-rg(x) = hgroup("[7] Reverb",x);
+rg(x) = hgroup("[2] Reverb",x);
 rkg(x) = rg(hgroup("[0] Knobs",x));
 rsg(x) = rg(hgroup("[1] Switches",x));
 
-sag(x) = hgroup("[8] Spectrum Analyzer", x);
+sag(x) = hgroup("[4] Spectrum Analyzer", x);
 sagg(x) = sag(vgroup("[0] Graph", x));
 sagc(x) = sag(vgroup("[1] Control", x));
 
 
 
-
--->
-            </faust-widget>
-        </div>
-    <!-- Link to the Service Worker -->
-    <script src="app.js"></script>
-    </body>
-</html>

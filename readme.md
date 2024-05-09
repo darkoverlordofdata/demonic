@@ -8,12 +8,29 @@ built and tested using [Faust IDE](https://faustide.grame.fr/index.html)
 
 to install/run visit https://darkoverlordofdata.com/demonic
 
-This is not a modeling amp. You cannot select what tubes and cabinet you like. All you get is a generic practice amp.
-At present you can select Amplifier, Flanger, Chorus, and Reverb. You can play with knobs and dials.
+This is not a modeling amp. You cannot select tubes and cabinets. Though there are functions in faust to do this, the convolution math required is slow in faust, and in the browser, it's slow enough to be prohibitive, there is just too much latency.
+
+So we have a mythical amp, called the Demonic. It's based on faust example code.
+I'm triming out the over-abundant dials to match real world products.
+
+Stage 1 is a clean pre-amp, that allows you to adjust tone and volume.
+Stage 2 is PowerAmp, wich allows adjusting feedback and presence.
+Stage 2 is Temper, an alternate warm distortion amp.
+Effect 1 is Fuzz
+Effect 2 is Phaser
+Effect 3 is Flanger
+Effect 4 is Chorus
+Effect 5 is Reverb
+
+
+
+
+
+At present you can adjust tone, and select Amplifier, Flanger, Chorus, and Reverb. You can play with knobs and dials.
 My main use case is that I can practice along side youtube as well as various tablature playback sites such as ultimate-guitar:
 
 todo
-* hide/display visualization panel
+* visualization panel?
 * add metronome
 
 ### compatability

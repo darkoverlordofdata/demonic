@@ -8,3 +8,5 @@ if (window.matchMedia("(max-width: 767px)").matches)
 document.write("This is a mobile device.");
 }
 ```
+
+https://github.com/creativeintent/temper
