@@ -493,7 +493,7 @@ preamp = environment {
 	/* The main program. */
 
 	preamp_process = 
-			vgroup("[0] preamp", preamp, preamp) ;
+			hgroup("[0] Preamp", preamp, preamp) ;
 			// hgroup("[0] clean", vgroup("[1] preamp", preamp, preamp) );
 
 
