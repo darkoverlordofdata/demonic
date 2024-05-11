@@ -62,23 +62,14 @@ import("stdfaust.lib");
 import("music.lib");
 
 
-// process = preamp 
-// 	:> amplifier
-// 	: temper
-// 	<: fuzz
-// 	: phaser
-// 	:> flanger
-// 	: chorus
-//   	: reverb;
-
 process = preamp
 	: fuzz
 	: phaser
-	:> amplifier
-	: temper
 	: flanger
 	: chorus
-  	: reverb;
+    : reverb
+	:> amplifier
+	: temper;
 
 //======================================================
 //
@@ -93,12 +84,12 @@ amplifier = environment {
 	// Adapted for PowerAmp simulation (addition of presence filter, param adaptation, small changes...)
 
 	// Distortion parameters
-	pdrive = hslider("Drive gain[style:knob]", 4.0, -10.0, 10.0, 0.001) : si.smooth(0.995);
-	psat = hslider("Saturation dry wet[style:knob]", 1.0, 0.0, 1.0, 0.001) : si.smooth(0.995);
-	pcurve = hslider("Curve k[style:knob]", 1.0, 0.1, 4.0, 0.001) : si.smooth(0.995);
+	pdrive = hslider("[0] Drive gain[style:knob]", 4.0, -10.0, 10.0, 0.001) : si.smooth(0.995);
+	psat = hslider("[1] Saturation dry wet[style:knob]", 1.0, 0.0, 1.0, 0.001) : si.smooth(0.995);
+	pcurve = hslider("[2] Curve k[style:knob]", 1.0, 0.1, 4.0, 0.001) : si.smooth(0.995);
 
 	// Output parameters
-	plevel = hslider("Level[style:knob]", -3, -24, 24, 1) : ba.db2linear : si.smooth(0.995);
+	plevel = hslider("[3] Level[style:knob]", -3, -24, 24, 1) : ba.db2linear : si.smooth(0.995);
 
 	// A fairly standard wave shaping curve; we use this to shape the input signal
 	// before modulating the filter coefficients by this signal. Which shaping curve
@@ -168,7 +159,7 @@ amplifier = environment {
 
 	feedbackCircuit = presence:*(gainNFL) 
 	with {
-		p1gain = hslider("Presence[name:p1Gain][style:knob]", 0, -15, 15, 0.1);
+		p1gain = hslider("[4] Presence[name:p1Gain][style:knob]", 0, -15, 15, 0.1);
 		wa = library("webaudio.lib");
 		presence = wa.peaking2(2000, p1gain, 1, 1) : wa.peaking2(4000, p1gain, 1, 1);
 		gainNFL = hslider("Negative gain[name:Level][style:knob]", -0.4, -0.8, 1, 0.01) :  si.smoo;
@@ -182,13 +173,13 @@ amplifier = environment {
 		// occurs from the prefilter and modulation step. Then we apply the output
 		// level parameter.
 		gain = *(4.0) : *(plevel);
-		masterVolume = hslider("Master Volume[name:MV][style:knob]", 1, 0, 4, 0.1)  : si.smoo;
+		masterVolume = hslider("[5] Master Volume[name:MV][style:knob]", 1, 0, 4, 0.1)  : si.smoo;
 	};
 
 	// And the overall process declaration.
 	poweramp =  main;
 
-	finalPWAMono = hgroup("[1] PowerAmp",ba.bypass_fade(ma.SR/10, checkbox("bypass"), poweramp)); 
+	finalPWAMono = hgroup("[1] PowerAmp",ba.bypass_fade(ma.SR/10, checkbox("[6] Bypass"), poweramp)); 
 
 	amp_process = finalPWAMono;
 
@@ -204,87 +195,95 @@ amplifier = environment {
 //======================================================
 flanger = environment {
 
+    flanger_group(x) = hgroup("[5] Flanger ", x);
 
-	// Created from flange.dsp 2015/06/21
-	flanger_mono(dmax,curdel,depth,fb,invert,lfoshape)
-		= _ <: _, (-:de.fdelay(dmax,curdel)) ~ *(fb) : _, *(select2(invert,depth,0-depth)) : + : *(1/(1+depth)); // ideal for dc and reinforced sinusoids (in-phase summed signals)
+    //level			= hslider("level", 1, 0, 1, 0.01);
+    level           = 1;
+    freq			= flanger_group(hslider("[0] Freq [style:knob]", 2, 0, 10, 0.01));
+    //dtime			= hslider("delay", 0.002, 0, 0.04, 0.001);
+    dtime           = 0.002;
+    depth			= flanger_group(hslider("[1] Depth [style:knob]", 0.5, 0, 1, 0.001));
+    feedback		= flanger_group(hslider("[2] Feedback [style:knob]", 0.1, 0, 1, 0.001));
+    //stereo			= hslider("stereo", 1, 0, 1, 0.001);
+    stereo          = 1;
+    byp 	        = flanger_group(1-int(checkbox("[3] Enable")));
 
-	flanger_process = ba.bypass1(fbp,flanger_mono_gui);
+    tblosc(n,f,freq,mod)	= (1-d)*rdtable(n,wave,i&(n-1)) +
+                d*rdtable(n,wave,(i+1)&(n-1))
+    with {
+        wave		= time*(2.0*PI)/n : f;
+        phase		= freq/SR : (+ : decimal) ~ _;
+        modphase	= decimal(phase+mod/(2*PI))*n;
+        i		= int(floor(modphase));
+        d		= decimal(modphase);
+    };
 
-	// Kill the groups to save vertical space:
-	meter_group(x) = flsg(x);
-	ctl_group(x) = flkg(x);
-	del_group(x) = flkg(x);
+    triangle(t)		= ((0<=t) & (t<=PI))*((2*t-PI)/PI) +
+                ((PI<t) & (t<=2*PI))*((3*PI-2*t)/PI);
 
-	flangeview = lfo(freq);
+    flanger(dtime,freq,level,feedback,depth,phase,x)
+                = (x+(loop(x)*level))/(1+level)
+    with {
+        t	= SR*dtime/2*(1+depth*tblosc(1<<16, triangle, freq, phase));
+        loop	= (+ : fdelay(1<<16, t)) ~ *(feedback);
+    };
 
-	flanger_mono_gui = attach(flangeview) : flanger_mono(dmax,curdel,depth,fb,invert,lfoshape);
-
-	sinlfo(freq) = (1 + os.oscrs(freq))/2;
-	trilfo(freq) = 1.0-abs(os.saw1(freq));
-	lfo(f) = (lfoshape * trilfo(f)) + ((1-lfoshape) * sinlfo(f));
-
-	dmax = 2048;
-	odflange = 44; // ~1 ms at 44.1 kHz = min delay
-	dflange  = ((dmax-1)-odflange)*del_group(hslider("[1] Delay [midi:ctrl 50][style:knob]", 0.22, 0, 1, 1));
-	freq     = ctl_group(vslider("[1] Rate [midi:ctrl 51] [unit:Hz] [style:knob]", 0.5, 0, 10, 0.01)) : si.smooth(ba.tau2pole(freqT60/6.91));
-
-	freqT60  = 0.15661;
-	depth    = ctl_group(vslider("[3] Depth [midi:ctrl 52] [style:knob]", .75, 0, 1, 0.001)) : si.smooth(ba.tau2pole(depthT60/6.91));
-
-	depthT60 = 0.15661;
-	fb       = ctl_group(vslider("[5] Feedback [midi:ctrl 53] [style:knob]", 0, -0.995, 0.99, 0.001)) : si.smooth(ba.tau2pole(fbT60/6.91));
-
-	fbT60    = 0.15661;
-	lfoshape = ctl_group(vslider("[7] Waveshape [midi:ctrl 54] [style:knob]", 0, 0, 1, 0.001));
-	curdel   = odflange+dflange*lfo(freq);
-
-
-	fbp = 1-int(flsg(checkbox("[0] Enable")));
-
-	invert = flsg(checkbox("[1] Invert"));
-
+    flanger_process			= ba.bypass2(byp, (left, right))
+    with {
+        left	= flanger(dtime,freq,level,feedback,depth,0);
+        right	= flanger(dtime,freq,level,feedback,depth,stereo*PI);
+    };
 }.flanger_process;
+
 
 //======================================================
 //
 //	chorus
 //
 //======================================================
+
+/* Stereo chorus. */
+//https://github.com/grame-cncm/faust/blob/master-dev/tools/faust2pd/examples/synth/chorus.dsp
+
+// declare name "chorus -- stereo chorus effect";
+// declare author "Albert Graef";
+// declare version "1.0";
+
+// import("music.lib");
+// process = chorus;
+
 chorus = environment {
+	chorus_group(x) = hgroup("[6] Chorus ", x);
 
-	voices = 8; // MUST BE EVEN
-	chorus_process = ba.bypass1to2(cbp,chorus_mono(dmax,curdel,rate,sigma,do2,voices));
+    level	= chorus_group(hslider("[0] Level [style:knob]", 0.5, 0, 1, 0.01));
+    freq	= chorus_group(hslider("[1] Freq [style:knob]", 3, 0, 10, 0.01));
+    dtime	= chorus_group(hslider("[2] Delay [style:knob]", 0.025, 0, 0.2, 0.001));
+    depth	= chorus_group(hslider("[3] Depth [style:knob]", 0.02, 0, 1, 0.001));
+	byp 	= chorus_group(1-int(checkbox("[4] Enable")));
 
-	dmax = 8192;
-	curdel = dmax * ckg(vslider("[0] Delay [midi:ctrl 55] [style:knob]", 0.5, 0, 1, 1)) : si.smooth(0.999);
-	rateMax = 7.0; // Hz
-	rateMin = 0.01;
-	rateT60 = 0.15661;
-	rate = ckg(vslider("[1] Rate [midi:ctrl 56] [unit:Hz] [style:knob]", 0.5, rateMin, rateMax, 0.0001))
-		: si.smooth(ba.tau2pole(rateT60/6.91));
 
-	depth = ckg(vslider("[4] Depth [midi:ctrl 57] [style:knob]", 0.5, 0, 1, 0.001)) : si.smooth(ba.tau2pole(depthT60/6.91));
 
-	depthT60 = 0.15661;
-	delayPerVoice = 0.5*curdel/voices;
-	sigma = delayPerVoice * ckg(vslider("[6] Deviation [midi:ctrl 58] [style:knob]",0.5,0,1,0.001)) : si.smooth(0.999);
+    tblosc(n,f,freq,mod)	= (1-d)*rdtable(n,wave,i&(n-1)) +
+                d*rdtable(n,wave,(i+1)&(n-1))
+    with {
+        wave	 	= time*(2.0*PI)/n : f;
+        phase		= freq/SR : (+ : decimal) ~ _;
+        modphase	= decimal(phase+mod/(2*PI))*n;
+        i		= int(floor(modphase));
+        d		= decimal(modphase);
+    };
 
-	periodic = 1;
+    chorus(dtime,freq,depth,phase,x)
+                = x+level*fdelay(1<<16, t, x)
+    with {
+        t		= SR*dtime/2*(1+depth*tblosc(1<<16, sin, freq, phase));
+    };
 
-	do2 = depth;   // use when depth=1 means "multivibrato" effect (no original => all are modulated)
-	cbp = 1-int(csg(checkbox("Enable")));
-
-	chorus_mono(dmax,curdel,rate,sigma,do2,voices)
-		= _ <: (*(1-do2)<:_,_),(*(do2) <: par(i,voices,voice(i)) :> _,_) : ro.interleave(2,2) : +,+
-		with {
-			angle(i) = 2*ma.PI*(i/2)/voices + (i%2)*ma.PI/2;
-			voice(i) = de.fdelay(dmax,min(dmax,del(i))) * cos(angle(i));
-			del(i) = curdel*(i+1)/voices + dev(i);
-			rates(i) = rate/float(i+1);
-			dev(i) = sigma * os.oscp(rates(i),i*2*ma.PI/voices);
-		};
-
+    chorus_process			= ba.bypass2(byp, (left, right))
+    with {
+        left		= chorus(dtime,freq,depth,0);
+        right		= chorus(dtime,freq,depth,PI/2);
+    };
 }.chorus_process;
 
 //======================================================
@@ -296,6 +295,8 @@ chorus = environment {
 //======================================================
 reverb = environment {
 
+
+    reverb_group(x) = hgroup("[7] Reverb",x);
 
 	// import("stdfaust.lib");
 
@@ -349,9 +350,9 @@ reverb = environment {
 	// Dry : original signal
 	// Wet : reverberated signal
 
-	dampSlider      = rkg(vslider("Damp [midi:ctrl 3] [style:knob]",0.5, 0, 1, 0.025))*scaledamp;
-	roomsizeSlider  = rkg(vslider("RoomSize [midi:ctrl 4] [style:knob]", 0.5, 0, 1, 0.025))*scaleroom + offsetroom;
-	wetSlider       = rkg(vslider("Wet [midi:ctrl 79] [style:knob]", 0.3333, 0, 1, 0.025));
+	dampSlider      = reverb_group(hslider("[0] Damp [midi:ctrl 3] [style:knob]",0.5, 0, 1, 0.025))*scaledamp;
+	roomsizeSlider  = reverb_group(hslider("[1] RoomSize [midi:ctrl 4] [style:knob]", 0.5, 0, 1, 0.025))*scaleroom + offsetroom;
+	wetSlider       = reverb_group(hslider("[2]] Wet [midi:ctrl 79] [style:knob]", 0.3333, 0, 1, 0.025));
 	combfeed        = roomsizeSlider;
 
 	// Comb and Allpass filters
@@ -392,7 +393,7 @@ reverb = environment {
 
 	fxctrl(g,w,Fx) =  _,_ <: (*(g),*(g) : Fx : *(w),*(w)), *(1-w), *(1-w) +> _,_;
 
-	rbp = 1-int(rsg(checkbox("[0] Enable")));
+	rbp = 1-int(reverb_group(checkbox("[3] Enable")));
 
 	// Freeverb
 	//---------
@@ -402,42 +403,6 @@ reverb = environment {
 
 }.freeverb_process;
 
-
-spectral_analyzer = environment {
-
-	//----------------------`(dm.)mth_octave_spectral_level`----------------------
-	// Demonstrate mth_octave_spectral_level in a standalone GUI.
-	//
-	// #### Usage
-	// ```
-	// _ : mth_octave_spectral_level(BandsPerOctave) : _
-	// _ : spectral_level_demo : _ // 2/3 octave
-	// ```
-	//------------------------------------------------------------
-	declare mth_octave_spectral_level author "Julius O. Smith III and Yann Orlarey";
-	declare mth_octave_spectral_level licence "MIT";
-
-
-	mth_octave_spectral_level(BPO) =  an.mth_octave_spectral_level_default(M,ftop,N,tau,dB_offset)
-	with{
-		M = BPO;
-		// ftop = 16000;
-		ftop = 2000;
-		// Noct = 10; // number of octaves down from ftop
-		Noct = 5; // number of octaves down from ftop
-		// Lowest band-edge is at ftop*2^(-Noct+2) = 62.5 Hz when ftop=16 kHz:
-		N = int(Noct*M); // without 'int()', segmentation fault observed for M=1.67
-		// ctl_group(x)  = hgroup("[1] SPECTRUM ANALYZER CONTROLS", x);
-		tau = sagg(hslider("[0] Level Averaging Time [unit:ms] [scale:log]
-			[tooltip: band-level averaging time in milliseconds]",
-		100,1,10000,1)) * 0.001;
-		dB_offset = sagc(hslider("[1] Level dB Offset [unit:dB]
-		[tooltip: Level offset in decibels]",
-		50,-50,100,1));
-	};
-
-	spectral_process = mth_octave_spectral_level(2);
-}.spectral_process;
 
 preamp = environment {
 	import("math.lib");
@@ -452,8 +417,8 @@ preamp = environment {
 	/* Bass and treble gain controls in dB. The range of +/-20 corresponds to a
 	boost/cut factor of 10. */
 
-	bass_gain	= hslider("bass", 0, -20, 20, 0.1);
-	treble_gain	= hslider("treble", 0, -20, 20, 0.1);
+	bass_gain	= hslider("Bass", 0, -20, 20, 0.1);
+	treble_gain	= hslider("Treble", 0, -20, 20, 0.1);
 
 	/* Gain and balance controls. */
 
@@ -551,13 +516,13 @@ temper = environment {
     pfilterq = hslider("Resonance [style:knob]", 1.0, 1.0, 8, 0.001) : si.smooth(0.995);
 
     // Distortion parameters
-    pdrive = hslider("Drive [style:knob]", 4.0, -10.0, 10.0, 0.001) : si.smooth(0.995);
-    psat = hslider("Saturation [style:knob]", 1.0, 0.0, 1.0, 0.001) : si.smooth(0.995);
-    pcurve = hslider("Curve [style:knob]", 1.0, 0.1, 4.0, 0.001) : si.smooth(0.995);
+    pdrive = hslider("[0] Drive [style:knob]", 4.0, -10.0, 10.0, 0.001) : si.smooth(0.995);
+    psat = hslider("[1] Saturation [style:knob]", 1.0, 0.0, 1.0, 0.001) : si.smooth(0.995);
+    pcurve = hslider("[2] Curve [style:knob]", 1.0, 0.1, 4.0, 0.001) : si.smooth(0.995);
 
     // Output parameters
-    pfeedback = hslider("Feedback [style:knob]", -60, -60, -24, 1) : ba.db2linear : si.smooth(0.995);
-    plevel = hslider("Level [style:knob]", -3, -24, 24, 1) : ba.db2linear : si.smooth(0.995);
+    pfeedback = hslider("[3] Feedback [style:knob]", -60, -60, -24, 1) : ba.db2linear : si.smooth(0.995);
+    plevel = hslider("[4] Level [style:knob]", -3, -24, 24, 1) : ba.db2linear : si.smooth(0.995);
 
     // A fairly standard wave shaping curve; we use this to shape the input signal
     // before modulating the filter coefficients by this signal. Which shaping curve
@@ -637,7 +602,7 @@ temper = environment {
     // And the overall process declaration.
     poweramp = filter : main;    
 
-	finalPWAMono = hgroup("[2] Temper",ba.bypass_fade(ma.SR/10, checkbox("bypass"), poweramp)); 
+	finalPWAMono = hgroup("[2] Temper",ba.bypass_fade(ma.SR/10, checkbox("[5] Bypass"), poweramp)); 
 
 	temper_process = finalPWAMono;
 
@@ -682,17 +647,17 @@ fuzz = environment {
 
 // import("stdfaust.lib");
 
-// process = phaser;
+// process = phaser2_demo;
 
-//-------------------------`(dm.)phaser2_demo`---------------------------
-// Phaser effect demo application.
-//
-// #### Usage
-//
-// ```
-// _,_ : phaser2_demo : _,_
-// ```
-//------------------------------------------------------------
+// //-------------------------`(dm.)phaser2_demo`---------------------------
+// // Phaser effect demo application.
+// //
+// // #### Usage
+// //
+// // ```
+// // _,_ : phaser2_demo : _,_
+// // ```
+// //------------------------------------------------------------
 // declare phaser2_demo author "Julius O. Smith III";
 // declare phaser2_demo licence "MIT";
 
@@ -727,29 +692,6 @@ phaser = environment {
 		mdepth = select2(vibr,depth,2); // Improve "ease of use"
 	};
 }.phaser2_demo;
-/**
- * Layout
- * 
- */
-flg(x) = hgroup("[5] Flanger",x);
-flkg(x) = flg(hgroup("[0] Knobs",x));
-flsg(x) = flg(hgroup("[1] Switches",x));
-
-
-chg(x) = hgroup("[6] Chorus",x);
-ckg(x) = chg(hgroup("[0] Knobs",x));
-csg(x) = chg(hgroup("[1] Switches",x));
-
-rg(x) = hgroup("[7] Reverb",x);
-rkg(x) = rg(hgroup("[0] Knobs",x));
-rsg(x) = rg(hgroup("[1] Switches",x));
-
-sag(x) = hgroup("[8] Spectrum Analyzer", x);
-sagg(x) = sag(vgroup("[0] Graph", x));
-sagc(x) = sag(vgroup("[1] Control", x));
-
-
-
 
 -->
             </faust-widget>
