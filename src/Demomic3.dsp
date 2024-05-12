@@ -21,10 +21,15 @@ import("tubes.lib");
 import("webaudio.lib");
 
 
-process = preamp
+process = preamp : preamp2
     :> tone
-    : hgroup("[2] Distortion", tubescreamer <: fuzz)
+    : hgroup("[3] Distortion", tubescreamer <: fuzz)
+    // : tubescreamer
     :> temper
+	// <: fuzz
+    // :> temper
+	// <: phaser
+	// : flanger
     <: hgroup("[4] Modulation", phaser : flanger)
 	: chorus
     : reverb
@@ -48,7 +53,7 @@ preamp = environment {
 
     bass_gain = 0;
     treble_gain = 0;
-	gain		= 0.0;
+	gain		= 1.0;
 	bal		= 0.0;
 	
 	/* Balance a stereo signal by attenuating the left channel if balance is on
@@ -126,13 +131,31 @@ preamp = environment {
 	right_meter(x)	= attach(x, env(x) : hbargraph("right", -96, 10));
 
 	/* The main program. */
-
-	preamp_process = hgroup("[0] Preamp", preamp, preamp) ;
+	preamp_process = hgroup("[0] Preamp", preamp, preamp);
 
 
 
 }.preamp_process;
 
+preamp2 = environment {
+	/* The main program. */
+    preamp = hgroup("[1]preamp: 6C16", stage1 : stage2)
+    with {
+
+        stage1 = T1_6C16 : *(preamp) : fi.lowpass(1,6531.0) : T2_6C16 : *(preamp) 
+        with {
+            preamp = vslider("[0] Pregain [style:knob]",-6,-20,20,0.1) : ba.db2linear : si.smoo;
+        };
+
+        stage2 = fi.lowpass(1,6531.0) : T3_6C16 : *(gain) 
+        with {
+            gain = vslider("[1] Gain [style:knob]",-6,-20.0,20.0,0.1) : ba.db2linear : si.smoo;
+        };
+    };
+
+	preamp2_process = hgroup("[0] Preamp", preamp, preamp);
+
+}.preamp2_process;
 
 //======================================================
 //
@@ -304,7 +327,7 @@ amplifier = environment {
 
 // https://github.com/creativeintent/temper/blob/master/Dsp/temper.dsp
 temper = environment {
-	temper_group(x) = hgroup("[3] Temper", x);
+	temper_group(x) = hgroup("[2] Temper", x);
 
     // Pre-filter parameters
     pfilterfc = hslider("[5] Cutoff [style:knob]", 20000, 100, 20000, 1.0);
